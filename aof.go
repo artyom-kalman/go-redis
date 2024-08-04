@@ -15,6 +15,7 @@ type Aof struct {
 	mutex sync.Mutex
 }
 
+// NewAof opens or creates a aof file.
 func NewAof(path string) (*Aof, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {

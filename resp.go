@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ const (
 	ARRAY   = '*'
 )
 
+// Resp represents a RESP reader
 type Resp struct {
 	reader *bufio.Reader
 }
@@ -95,6 +97,7 @@ func (r *Resp) readBulk() (value Value, err error) {
 	return value, nil
 }
 
+// Read reads data from a buffer
 func (r *Resp) Read() (Value, error) {
 	_type, err := r.reader.ReadByte()
 	if err != nil {
@@ -108,6 +111,6 @@ func (r *Resp) Read() (Value, error) {
 		return r.readBulk()
 	default:
 		fmt.Println("Unknown type: ", _type)
-		return Value{}, nil
+		return Value{}, errors.New("Invalid type")
 	}
 }

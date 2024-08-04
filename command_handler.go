@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -12,6 +11,8 @@ var Handlers = map[string]func([]Value) Value{
 	"GET":     get,
 	"HSET":    hset,
 	"HGET":    hget,
+	"DEL":     del,
+	"HDEL":    hdel,
 }
 
 var sets = map[string]string{}
@@ -161,12 +162,53 @@ func hget(args []Value) Value {
 	for _, value := range values {
 		array = append(array, Value{
 			dataType:    "string",
-			stringValue: fmt.Sprintf("%s", value),
+			stringValue: value,
 		})
 	}
 
 	return Value{
 		dataType: "array",
 		array:    array,
+	}
+}
+
+func del(args []Value) Value {
+	if len(args) != 1 {
+		return Value{
+			dataType:    "error",
+			stringValue: "ERR: wrong number of arguments for comman `DEL`, expected 1",
+		}
+	}
+
+	key := args[0].bulk
+	delete(sets, key)
+
+	return Value{
+		dataType:    "string",
+		stringValue: "OK",
+	}
+}
+
+func hdel(args []Value) Value {
+	if len(args) != 2 && len(args) != 1 {
+		return Value{
+			dataType:    "error",
+			stringValue: "ERR: wrong number of arguments for command `HDEL`, expected 1 or 2",
+		}
+	}
+
+	if len(args) == 2 {
+		key1 := args[0].bulk
+		key2 := args[1].bulk
+
+		delete(hsets[key1], key2)
+	} else {
+		key := args[0].bulk
+		delete(hsets, key)
+	}
+
+	return Value{
+		dataType:    "string",
+		stringValue: "OK",
 	}
 }
